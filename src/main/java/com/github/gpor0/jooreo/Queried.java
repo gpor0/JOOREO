@@ -3,6 +3,11 @@ package com.github.gpor0.jooreo;
 import java.util.List;
 import java.util.stream.Stream;
 
+/**
+ * Author: gpor0
+ * <p>
+ * Helper bean to return result stream with total number of records
+ */
 public class Queried<T> {
 
     private final Long totalCount;

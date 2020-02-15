@@ -10,6 +10,9 @@ import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+/**
+ * Author: gpor0
+ */
 public class RestUtil {
 
     public static final Pattern FILTER_PATTERN = Pattern.compile("(\\[[^\\[]*\\]|[^,])+");

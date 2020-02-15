@@ -1,6 +1,9 @@
 package com.github.gpor0.jooreo.exceptions;
 
-public class ConflictException extends ManagedException {
+/**
+ * Author: gpor0
+ */
+public class ConflictException extends HandledException {
 
     private String faultCode;
     private String field;

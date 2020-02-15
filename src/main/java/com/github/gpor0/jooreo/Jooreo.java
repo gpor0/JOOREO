@@ -1,12 +1,11 @@
 package com.github.gpor0.jooreo;
 
 import com.github.gpor0.jooreo.annotations.OneToMany;
-import com.github.gpor0.jooreo.dao.record.ManagedRecord;
+import com.github.gpor0.jooreo.dao.record.JooreoRecord;
 import com.github.gpor0.jooreo.exceptions.InvalidParameterException;
 import com.github.gpor0.jooreo.operations.DataOperation;
 import com.github.gpor0.jooreo.operations.FilterOperation;
 import org.jooq.*;
-import org.jooq.impl.UpdatableRecordImpl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -20,21 +19,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class Jooq {
+/**
+ * Author: gpor0
+ */
+public class Jooreo {
 
     private static final Map<Class, Table> CLASS_TABLE_MAP = new ConcurrentHashMap<>();
 
-    public static <R> RecordMapper<Record, R> to(Class<R> recordClass, DSLContext dsl) {
-        return (RecordMapper) record -> {
-            R result = record.into(recordClass);
-            if (ManagedRecord.class.isAssignableFrom(recordClass)) {
-                ((ManagedRecord) result).dsl(dsl);
-            }
-            return result;
-        };
-    }
-
-    public static final <R extends UpdatableRecordImpl> Condition buildCondition(Table<R> table, DataOperation op) {
+    public static final <R extends TableRecord> Condition buildCondition(Table<R> table, DataOperation op) {
         {
             String fieldNameStr = ((FilterOperation) op).getField();
 
@@ -143,10 +135,10 @@ public class Jooq {
      * @param operations  array of parsed operations (filters)
      * @return list of queries for exists sub selects
      */
-    public static final <R extends UpdatableRecordImpl> List<SelectConditionStep<Record1<Integer>>> getExistConditions(Class<?> clazz,
-                                                                                                                       DSLContext dsl,
-                                                                                                                       Table<R> parentTable,
-                                                                                                                       DataOperation[] operations) {
+    public static final <R extends TableRecord> List<SelectConditionStep<Record1<Integer>>> getExistConditions(Class<?> clazz,
+                                                                                                                   DSLContext dsl,
+                                                                                                                   Table<R> parentTable,
+                                                                                                                   DataOperation[] operations) {
         return Stream.of(operations)
                 .filter(operation -> operation != null && operation.getClass() == FilterOperation.class)
                 .filter(op -> {
@@ -179,7 +171,7 @@ public class Jooq {
 
                                     Table childTable = CLASS_TABLE_MAP.get(childClass);
 
-                                    return new AbstractMap.SimpleEntry<>(childTable, Jooq.buildCondition(childTable, op));
+                                    return new AbstractMap.SimpleEntry<>(childTable, Jooreo.buildCondition(childTable, op));
                                 }
                             }
                         }
@@ -196,6 +188,11 @@ public class Jooq {
 
                     return dsl.selectOne().from(childTable).where(childTableConditions).and(fkTableField.eq(primaryKey));
                 }).collect(Collectors.toList());
+    }
+
+    public static Field getField(Record r, String fieldName) {
+        return r.field(fieldName.toLowerCase()) != null ? r.field(fieldName.toLowerCase()) : r.field(fieldName.toUpperCase()) != null ?
+                r.field(fieldName.toUpperCase()) : null;
     }
 
 }

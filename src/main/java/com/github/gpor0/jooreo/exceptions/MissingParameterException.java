@@ -1,6 +1,9 @@
 package com.github.gpor0.jooreo.exceptions;
 
-public class MissingParameterException extends ManagedException {
+/**
+ * Author: gpor0
+ */
+public class MissingParameterException extends HandledException {
 
     private String fieldName;
 

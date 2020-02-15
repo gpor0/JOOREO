@@ -1,5 +1,8 @@
 package com.github.gpor0.jooreo.exceptions;
 
+/**
+ * Author: gpor0
+ */
 public class InvalidParameterException extends IllegalArgumentException {
 
     private String field;

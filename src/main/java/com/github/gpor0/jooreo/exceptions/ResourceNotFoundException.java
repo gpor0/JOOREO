@@ -2,7 +2,10 @@ package com.github.gpor0.jooreo.exceptions;
 
 import java.util.UUID;
 
-public class ResourceNotFoundException extends ManagedException {
+/**
+ * Author: gpor0
+ */
+public class ResourceNotFoundException extends HandledException {
 
     private String id;
     private String resourceName;

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet author="test" id="changelog-1.0">
+        <createTable tableName="flight">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="code" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uc" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="um" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="current_timestamp()" name="dc" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="current_timestamp()" name="dm" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="reservation">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="customer_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="code" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uc" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="um" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="current_timestamp()" name="dc" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="current_timestamp()" name="dm" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="reservation_flight">
+            <column name="reservation_id" type="UUID">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="flight_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uc" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="um" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="current_timestamp()" name="dc" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="current_timestamp()" name="dm" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="customer">
+            <column name="id" type="UUID">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="first_name" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_name" type="VARCHAR">
+                <constraints nullable="false"/>
+            </column>
+            <column name="uc" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="um" type="binary(16)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="current_timestamp()" name="dc" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="current_timestamp()" name="dm" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="version" type="INT" defaultValue="0">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseColumnNames="reservation_id" baseTableName="reservation_flight" constraintName="reservation_flight_fk1"
+                                 deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id"
+                                 referencedTableName="reservation" validate="true"/>
+
+        <addForeignKeyConstraint baseColumnNames="flight_id" baseTableName="reservation_flight" constraintName="reservation_flight_fk2"
+                                 deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id"
+                                 referencedTableName="flight" validate="true"/>
+
+        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="reservation" constraintName="reservation_fk1"
+                                 deferrable="false"
+                                 initiallyDeferred="false" onDelete="RESTRICT" onUpdate="RESTRICT" referencedColumnNames="id"
+                                 referencedTableName="customer" validate="true"/>
+    </changeSet>
+</databaseChangeLog>

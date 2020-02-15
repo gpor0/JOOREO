@@ -1,30 +1,35 @@
 package com.github.gpor0.jooreo.dao;
 
-import com.github.gpor0.jooreo.Jooq;
-import com.github.gpor0.jooreo.LoggedUser;
-import com.github.gpor0.jooreo.Queried;
+import com.github.gpor0.jooreo.*;
+import com.github.gpor0.jooreo.annotations.OnDeleteFilter;
+import com.github.gpor0.jooreo.annotations.OnInsertFilter;
+import com.github.gpor0.jooreo.annotations.OnUpdateFilter;
+import com.github.gpor0.jooreo.dao.record.JooreoRecord;
 import com.github.gpor0.jooreo.exceptions.InvalidParameterException;
+import com.github.gpor0.jooreo.filters.defaults.OnDeleteDefaultFilter;
+import com.github.gpor0.jooreo.filters.defaults.OnInsertDefaultFilter;
+import com.github.gpor0.jooreo.filters.defaults.OnUpdateDefaultFilter;
 import com.github.gpor0.jooreo.operations.DataOperation;
 import com.github.gpor0.jooreo.operations.FilterOperation;
 import com.github.gpor0.jooreo.operations.OrderByOperation;
 import org.jooq.*;
-import org.jooq.impl.UpdatableRecordImpl;
-import org.jooq.tools.Convert;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
-import java.sql.Timestamp;
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.jooq.impl.DSL.field;
-import static org.jooq.impl.DSL.name;
-
-
-public abstract class JooreoDao<R extends UpdatableRecordImpl> {
+/**
+ * Author: gpor0
+ */
+public abstract class JooreoDao<R extends TableRecord> {
 
     @Inject
     protected LoggedUser user;
@@ -33,58 +38,49 @@ public abstract class JooreoDao<R extends UpdatableRecordImpl> {
     protected DSLContext dsl;
 
     protected Class<R> clazz;
+    protected Table<R> table;
+
+    protected JooreoInsertFilter onInsert = new OnInsertDefaultFilter();
+    protected JooreoRecordFilter onUpdate = new OnUpdateDefaultFilter();
+    protected JooreoRecordFilter onDelete = new OnDeleteDefaultFilter();
+
+    private static final JooreoRecordFilter createFilterInstance(Class<?> f) {
+        try {
+            Constructor<?> constructor = f.getConstructor();
+            return (JooreoRecordFilter) constructor.newInstance();
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException("Cannot create instance of filter", e);
+        }
+    }
+
+    private static final JooreoInsertFilter createInsertFilterInstance(Class<?> f) {
+        try {
+            Constructor<?> constructor = f.getConstructor();
+            return (JooreoInsertFilter) constructor.newInstance();
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException | InstantiationException e) {
+            throw new RuntimeException("Cannot create instance of filter", e);
+        }
+    }
 
     @PostConstruct
     public void init() {
-        this.clazz = (Class<R>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-    }
+        try {
+            this.clazz = (Class<R>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+            this.table = clazz.getConstructor().newInstance().getTable();
 
-    protected Consumer<Record> onUpdate() {
-        Timestamp now = new Timestamp(new Date().getTime());
-        UUID userId = getUserId();
-
-        return (r) -> {
-
-            if (r.field("dm") != null) {
-                r.setValue(field(name("dm"), Timestamp.class), Convert.convert(now, Timestamp.class));
-            }
-            if (r.field("um") != null) {
-                r.setValue(field(name("um"), UUID.class), userId);
-            }
-        };
-    }
-
-    protected Consumer<Record> onCreate() {
-        Timestamp now = new Timestamp(new Date().getTime());
-        UUID userId = getUserId();
-
-        //todo externalize
-        return (r) -> {
-            if (r.field("dc") != null) {
-                r.setValue(field(name("dc"), Timestamp.class), Convert.convert(now, Timestamp.class));
-            }
-            if (r.field("uc") != null) {
-                r.setValue(field(name("uc"), UUID.class), userId);
-            }
-            if (r.field("dm") != null) {
-                r.setValue(field(name("dm"), Timestamp.class), Convert.convert(now, Timestamp.class));
-            }
-            if (r.field("um") != null) {
-                r.setValue(field(name("um"), UUID.class), userId);
-            }
-            if (r.field("id") != null) {
-                r.setValue(field(name("id"), UUID.class), UUID.randomUUID());
-            }
-            if (r.field("deleted") != null) {
-                r.setValue(field(name("deleted"), Integer.class), 0);
-            }
-        };
+            Optional.ofNullable(this.clazz.getAnnotation(OnInsertFilter.class)).ifPresent(a -> onInsert = createInsertFilterInstance(a.value()));
+            Optional.ofNullable(this.clazz.getAnnotation(OnUpdateFilter.class)).ifPresent(a -> onUpdate = createFilterInstance(a.value()));
+            Optional.ofNullable(this.clazz.getAnnotation(OnDeleteFilter.class)).ifPresent(a -> onDelete = createFilterInstance(a.value()));
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to make instance of " + this.getClass(), e);
+        }
     }
 
     public Queried<R> getAll() {
-        int count = dsl.fetchCount(table());
 
-        Stream<R> ts = dsl.selectFrom(table()).fetch(Jooq.to(clazz, dsl)).stream();
+        int count = dsl.fetchCount(table);
+
+        Stream<R> ts = dsl.selectFrom(table).fetch(toRecord()).stream();
 
         return Queried.result(Long.valueOf(count), ts);
     }
@@ -95,7 +91,7 @@ public abstract class JooreoDao<R extends UpdatableRecordImpl> {
 
     public Queried<R> getSortedAndPaginated(Integer offset, Integer limit, DataOperation[] operations, DataOperation... additionalOperations) {
 
-        Table<R> tmp = table();
+        Table<R> tmp = table;
         SelectWhereStep<R> selectStep = dsl.selectFrom(tmp);
 
         List<Condition> filterBy = new LinkedList<>();
@@ -111,7 +107,7 @@ public abstract class JooreoDao<R extends UpdatableRecordImpl> {
             }
 
             filterBy = getFilterFields(operations);
-            existsConditions = Jooq.getExistConditions(clazz, dsl, tmp, operations);
+            existsConditions = Jooreo.getExistConditions(clazz, dsl, tmp, operations);
             orderBy = getSortFields(operations);
         }
 
@@ -137,13 +133,11 @@ public abstract class JooreoDao<R extends UpdatableRecordImpl> {
         }
 
         Stream<R> ts = selectStep
-                .limit(offset == null ? 0 : offset, limit == null ? 20 : limit).fetch(Jooq.to(clazz, dsl))
+                .limit(offset == null ? 0 : offset, limit == null ? 20 : limit).fetch(toRecord())
                 .stream();
 
         return Queried.result(count, ts);
     }
-
-    abstract Table<R> table();
 
     protected List<Condition> getFilterFields(DataOperation... operations) {
 
@@ -154,7 +148,7 @@ public abstract class JooreoDao<R extends UpdatableRecordImpl> {
                     String[] childField = fieldName.split("\\.");
                     return childField.length == 1;
                 })
-                .map(op -> Jooq.buildCondition(table(), op)).collect(Collectors.toList());
+                .map(op -> Jooreo.buildCondition(table, op)).collect(Collectors.toList());
     }
 
     protected List<SortField<?>> getSortFields(DataOperation... operations) {
@@ -163,33 +157,30 @@ public abstract class JooreoDao<R extends UpdatableRecordImpl> {
                 .map(op -> {
                     String fieldName = ((OrderByOperation) op).getField();
                     Field<?> field =
-                            table().fieldStream().filter(column -> column.getName().equals(fieldName)).findFirst().orElseThrow(() -> new InvalidParameterException(fieldName, ((OrderByOperation) op).isAsc() ? "asc" : "desc"));
+                            table.fieldStream().filter(column -> column.getName().equals(fieldName)).findFirst().orElseThrow(() -> new InvalidParameterException(fieldName, ((OrderByOperation) op).isAsc() ? "asc" : "desc"));
                     return ((OrderByOperation) op).isAsc() ? field.asc() : field.desc();
                 }).collect(Collectors.toList());
     }
 
-    public void create(R r) {
-        onCreate().accept(r);
-        dsl.executeInsert(r);
+    public int create(R r) {
+        return onInsert.filter(dsl, r);
     }
 
-    public void update(R r) {
-        onUpdate().accept(r);
-        r.update();
+    public R update(R r) {
+        return onUpdate.filter(dsl, r);
     }
 
-    public void delete(R r) {
-        r.delete();
+    public R delete(R r) {
+        return onDelete.filter(dsl, r);
     }
 
-    private <T> T getUserId() {
-        try {
-            return user.getId();
-        } catch (Exception e) {
-            //warn
-        }
-
-        return null;
+    public RecordMapper<Record, R> toRecord() {
+        return (RecordMapper) record -> {
+            R result = record.into(clazz);
+            if (JooreoRecord.class.isAssignableFrom(clazz)) {
+                ((JooreoRecord) result).dsl(dsl);
+            }
+            return result;
+        };
     }
-
 }
