@@ -1,2 +1,2 @@
 # jOOreo
-Jooq REst Oriented
+JOOq REst Oriented
