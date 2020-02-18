@@ -57,10 +57,16 @@
         </createTable>
 
         <createTable tableName="reservation_flight">
-            <column name="reservation_id" type="UUID">
+            <column name="id" type="UUID">
                 <constraints primaryKey="true"/>
             </column>
+            <column name="reservation_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
             <column name="flight_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="seat" type="VARCHAR">
                 <constraints nullable="false"/>
             </column>
             <column name="uc" type="binary(16)">

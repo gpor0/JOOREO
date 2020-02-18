@@ -7,7 +7,7 @@
     <packaging>jar</packaging>
     <version>0.2.0</version>
 
-    <description></description>
+    <description>JOOq REst Oriented</description>
     <url>https://github.com/gpor0/JOOREO</url>
     <inceptionYear>2020</inceptionYear>
     <developers>
@@ -115,6 +115,12 @@
             <groupId>org.jboss.naming</groupId>
             <artifactId>jnpserver</artifactId>
             <version>5.0.3.GA</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>3.2.4</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

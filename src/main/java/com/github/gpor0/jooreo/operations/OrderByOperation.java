@@ -1,7 +1,7 @@
 package com.github.gpor0.jooreo.operations;
 
 import com.github.gpor0.jooreo.RestUtil;
-import com.github.gpor0.jooreo.exceptions.InvalidParameterException;
+import com.github.gpor0.jooreo.exceptions.ParameterSyntaxException;
 
 /**
  * Author: gpor0
@@ -19,7 +19,7 @@ public class OrderByOperation implements DataOperation {
     public static OrderByOperation parse(String orderBy) {
         String[] fieldOrderStr = orderBy.split(" ");
         if (fieldOrderStr.length != 2) {
-            throw new InvalidParameterException("order", orderBy);
+            throw new ParameterSyntaxException("order", orderBy);
         }
 
         //provides camelCase (API) to snake_case (db)

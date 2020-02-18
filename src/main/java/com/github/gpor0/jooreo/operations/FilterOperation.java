@@ -1,7 +1,7 @@
 package com.github.gpor0.jooreo.operations;
 
 import com.github.gpor0.jooreo.RestUtil;
-import com.github.gpor0.jooreo.exceptions.InvalidParameterException;
+import com.github.gpor0.jooreo.exceptions.ParameterSyntaxException;
 
 /**
  * Author: gpor0
@@ -22,7 +22,7 @@ public class FilterOperation implements DataOperation {
         String[] filterStr = filter.split(":");
 
         if (filterStr.length < 2 || filterStr.length > 3) {
-            throw new InvalidParameterException("filter", filter);
+            throw new ParameterSyntaxException("filter", filter);
         }
 
         String field = RestUtil.camelToSnake(filterStr[0]);

@@ -4,8 +4,7 @@ import com.github.gpor0.jooreo.*;
 import com.github.gpor0.jooreo.annotations.OnDeleteFilter;
 import com.github.gpor0.jooreo.annotations.OnInsertFilter;
 import com.github.gpor0.jooreo.annotations.OnUpdateFilter;
-import com.github.gpor0.jooreo.dao.record.JooreoRecord;
-import com.github.gpor0.jooreo.exceptions.InvalidParameterException;
+import com.github.gpor0.jooreo.exceptions.UnsupportedParameterException;
 import com.github.gpor0.jooreo.filters.defaults.OnDeleteDefaultFilter;
 import com.github.gpor0.jooreo.filters.defaults.OnInsertDefaultFilter;
 import com.github.gpor0.jooreo.filters.defaults.OnUpdateDefaultFilter;
@@ -157,7 +156,7 @@ public abstract class JooreoDao<R extends TableRecord> {
                 .map(op -> {
                     String fieldName = ((OrderByOperation) op).getField();
                     Field<?> field =
-                            table.fieldStream().filter(column -> column.getName().equals(fieldName)).findFirst().orElseThrow(() -> new InvalidParameterException(fieldName, ((OrderByOperation) op).isAsc() ? "asc" : "desc"));
+                            table.fieldStream().filter(column -> column.getName().equalsIgnoreCase(fieldName)).findFirst().orElseThrow(() -> new UnsupportedParameterException(fieldName, ((OrderByOperation) op).isAsc() ? "asc" : "desc"));
                     return ((OrderByOperation) op).isAsc() ? field.asc() : field.desc();
                 }).collect(Collectors.toList());
     }
@@ -175,12 +174,6 @@ public abstract class JooreoDao<R extends TableRecord> {
     }
 
     public RecordMapper<Record, R> toRecord() {
-        return (RecordMapper) record -> {
-            R result = record.into(clazz);
-            if (JooreoRecord.class.isAssignableFrom(clazz)) {
-                ((JooreoRecord) result).dsl(dsl);
-            }
-            return result;
-        };
+        return Jooreo.to(clazz, dsl);
     }
 }

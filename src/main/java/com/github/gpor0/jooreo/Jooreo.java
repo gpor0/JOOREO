@@ -2,10 +2,12 @@ package com.github.gpor0.jooreo;
 
 import com.github.gpor0.jooreo.annotations.OneToMany;
 import com.github.gpor0.jooreo.dao.record.JooreoRecord;
-import com.github.gpor0.jooreo.exceptions.InvalidParameterException;
+import com.github.gpor0.jooreo.exceptions.ParameterSyntaxException;
+import com.github.gpor0.jooreo.exceptions.UnsupportedParameterException;
 import com.github.gpor0.jooreo.operations.DataOperation;
 import com.github.gpor0.jooreo.operations.FilterOperation;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -39,8 +41,7 @@ public class Jooreo {
 
             Object val = ((FilterOperation) op).getValue();
 
-            Field<Object> field = (Field<Object>)
-                    table.fieldStream().filter(column -> column.getName().equals(fieldName)).findFirst().orElseThrow(() -> new InvalidParameterException(fieldName, Objects.toString(val, null)));
+            Field field = table.fieldStream().filter(column -> column.getName().equalsIgnoreCase(fieldName)).findFirst().orElseThrow(() -> new UnsupportedParameterException(fieldName, Objects.toString(val, null)));
 
             String operation = ((FilterOperation) op).getOperation().toUpperCase();
 
@@ -58,11 +59,11 @@ public class Jooreo {
                     case "IN":
                         return field.in(parseCollectionValue(field, strValue));
                     case "INIC":
-                        return field.lower().in(parseCollectionValue(field, strValue));
+                        return DSL.lower((Field<String>) field).in(parseCollectionValue(field, strValue));
                     case "NIN":
                         return field.notIn(parseCollectionValue(field, strValue));
                     case "NINIC":
-                        return field.lower().notIn(parseCollectionValue(field, strValue));
+                        return DSL.lower((Field<String>) field).notIn(parseCollectionValue(field, strValue));
                 }
             }
 
@@ -90,11 +91,11 @@ public class Jooreo {
 
             }
 
-            throw new InvalidParameterException(fieldName, val.toString());
+            throw new ParameterSyntaxException(fieldName, val.toString());
         }
     }
 
-    private static final Object parseFieldValue(Field<?> field, String strValue) {
+    private static Object parseFieldValue(Field<?> field, String strValue) {
 
         if (strValue == null) {
             return null;
@@ -111,14 +112,14 @@ public class Jooreo {
         return strValue;
     }
 
-    private static final List<?> parseCollectionValue(Field<?> field, String strValue) {
+    private static List<?> parseCollectionValue(Field<?> field, String strValue) {
 
         if (strValue == null) {
             return null;
         }
 
         if (!strValue.contains("[") || !strValue.contains("]")) {
-            throw new InvalidParameterException(field.getName(), strValue);
+            throw new ParameterSyntaxException(field.getName(), strValue);
         }
 
         return Stream.of(strValue.replace("]", "").replace("[", "").split(",")).map(v -> parseFieldValue(field, v)).collect(Collectors.toList());
@@ -135,10 +136,10 @@ public class Jooreo {
      * @param operations  array of parsed operations (filters)
      * @return list of queries for exists sub selects
      */
-    public static final <R extends TableRecord> List<SelectConditionStep<Record1<Integer>>> getExistConditions(Class<?> clazz,
-                                                                                                                   DSLContext dsl,
-                                                                                                                   Table<R> parentTable,
-                                                                                                                   DataOperation[] operations) {
+    public static <R extends TableRecord> List<SelectConditionStep<Record1<Integer>>> getExistConditions(Class<?> clazz,
+                                                                                                         DSLContext dsl,
+                                                                                                         Table<R> parentTable,
+                                                                                                         DataOperation[] operations) {
         return Stream.of(operations)
                 .filter(operation -> operation != null && operation.getClass() == FilterOperation.class)
                 .filter(op -> {
@@ -165,7 +166,7 @@ public class Jooreo {
                                             TableRecord tableRecord = constructor.newInstance();
                                             CLASS_TABLE_MAP.putIfAbsent(childClass, tableRecord.getTable());
                                         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                                            throw new InvalidParameterException(fieldName, ((FilterOperation) op).getValue());
+                                            throw new UnsupportedParameterException(fieldName, ((FilterOperation) op).getValue());
                                         }
                                     }
 
@@ -178,7 +179,7 @@ public class Jooreo {
                     }
 
                     return null;
-                }).filter(e -> e != null).collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey)).entrySet().stream().map(e -> {
+                }).filter(Objects::nonNull).collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey)).entrySet().stream().map(e -> {
                     Table childTable = e.getKey();
                     List<Condition> childTableConditions = e.getValue().stream().map(AbstractMap.SimpleEntry::getValue).collect(Collectors.toList());
                     List<ForeignKey<Record, R>> references = parentTable.getReferencesFrom(childTable);
@@ -191,8 +192,16 @@ public class Jooreo {
     }
 
     public static Field getField(Record r, String fieldName) {
-        return r.field(fieldName.toLowerCase()) != null ? r.field(fieldName.toLowerCase()) : r.field(fieldName.toUpperCase()) != null ?
-                r.field(fieldName.toUpperCase()) : null;
+        return r.field(fieldName.toLowerCase()) != null ? r.field(fieldName.toLowerCase()) : r.field(fieldName.toUpperCase());
     }
 
+    public static <R extends Record> RecordMapper<Record, R> to(Class<R> recordClass, DSLContext dsl) {
+        return (RecordMapper) record -> {
+            R result = record.into(recordClass);
+            if (JooreoRecord.class.isAssignableFrom(recordClass)) {
+                ((JooreoRecord) result).dsl(dsl);
+            }
+            return result;
+        };
+    }
 }

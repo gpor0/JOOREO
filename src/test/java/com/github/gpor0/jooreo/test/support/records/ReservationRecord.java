@@ -1,12 +1,10 @@
 package com.github.gpor0.jooreo.test.support.records;
 
+import com.github.gpor0.jooreo.Jooreo;
 import com.github.gpor0.jooreo.annotations.OnInsertFilter;
 import com.github.gpor0.jooreo.annotations.OneToMany;
-import com.github.gpor0.jooreo.dao.record.JooreoRecord;
-import com.github.gpor0.jooreo.dao.records.tables.records.BaseReservationFlightRecord;
 import com.github.gpor0.jooreo.dao.records.tables.records.BaseReservationRecord;
 import com.github.gpor0.jooreo.filters.AuditCreateFilter;
-import org.jooq.DSLContext;
 
 import java.util.List;
 
@@ -19,9 +17,9 @@ public class ReservationRecord extends BaseReservationRecord {
     private CustomerRecord customer;
 
     @OneToMany
-    private List<BaseReservationFlightRecord> flights;
+    private List<ReservationFlightRecord> flights;
 
-    public List<BaseReservationFlightRecord> getFlights() {
+    public List<ReservationFlightRecord> getFlights() {
         if (flights == null) {
             flights = getPersistedFlights();
         }
@@ -29,12 +27,12 @@ public class ReservationRecord extends BaseReservationRecord {
         return flights;
     }
 
-    public void setFlights(List<BaseReservationFlightRecord> flights) {
+    public void setFlights(List<ReservationFlightRecord> flights) {
         this.flights = flights;
     }
 
     //todo this should be generated
-    protected List<BaseReservationFlightRecord> getPersistedFlights() {
+    protected List<ReservationFlightRecord> getPersistedFlights() {
 
         if (this.getId() == null) {
             return null;
@@ -43,7 +41,7 @@ public class ReservationRecord extends BaseReservationRecord {
         return dsl.select()
                 .from(RESERVATION_FLIGHT)
                 .where(RESERVATION_FLIGHT.RESERVATION_ID.eq(this.getId()))
-                .fetchInto(BaseReservationFlightRecord.class);
+                .fetch(Jooreo.to(ReservationFlightRecord.class, dsl));
 
     }
 
