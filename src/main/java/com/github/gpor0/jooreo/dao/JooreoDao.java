@@ -84,11 +84,11 @@ public abstract class JooreoDao<R extends TableRecord> {
         return Queried.result(Long.valueOf(count), ts);
     }
 
-    public Queried<R> getSortedAndPaginated(Integer offset, Integer limit, DataOperation... operations) {
-        return getSortedAndPaginated(offset, limit, operations, null);
+    public Queried<R> getPaginatedByOperations(Integer offset, Integer limit, DataOperation... operations) {
+        return getPaginatedByOperations(offset, limit, operations, null);
     }
 
-    public Queried<R> getSortedAndPaginated(Integer offset, Integer limit, DataOperation[] operations, DataOperation... additionalOperations) {
+    public Queried<R> getPaginatedByOperations(Integer offset, Integer limit, DataOperation[] operations, DataOperation... additionalOperations) {
 
         Table<R> tmp = table;
         SelectWhereStep<R> selectStep = dsl.selectFrom(tmp);

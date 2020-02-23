@@ -49,7 +49,7 @@ public class OneToManyEntityTest extends JooreoTest {
         //todo support oneToOne
         DataOperation filter = new FilterOperation("code", "EQ", "R192");
         //get reservation
-        Queried<ReservationRecord> reservations = reservationRepository.getSortedAndPaginated(null, null, filter);
+        Queried<ReservationRecord> reservations = reservationRepository.getPaginatedByOperations(null, null, filter);
 
         assertNotNull(reservations, "Returned query result should not be null");
         assertEquals(1L, reservations.getTotalCount(), "Total count of filtered result should match");
@@ -88,7 +88,7 @@ public class OneToManyEntityTest extends JooreoTest {
 
         DataOperation childFilter = new FilterOperation("flights.seat", "EQ", "76A");
         //get reservation
-        Queried<ReservationRecord> reservations = reservationRepository.getSortedAndPaginated(null, null, childFilter);
+        Queried<ReservationRecord> reservations = reservationRepository.getPaginatedByOperations(null, null, childFilter);
 
         assertNotNull(reservations, "Returned query result should not be null");
         assertEquals(1L, reservations.getTotalCount(), "Total count of filtered result should match");
