@@ -14,6 +14,6 @@ import static com.github.gpor0.jooreo.dao.records.Tables.FLIGHT;
 public class FlightRepository extends JooreoDao<FlightRecord> {
 
     public FlightRecord getByCode(String code) {
-        return dsl.select().from(table).where(FLIGHT.CODE.eq(code)).fetchOne(toRecord());
+        return dsl.select().from(table()).where(FLIGHT.CODE.eq(code)).fetchOne(toRecord());
     }
 }

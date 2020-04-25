@@ -15,6 +15,6 @@ import static com.github.gpor0.jooreo.dao.records.Tables.RESERVATION;
 public class ReservationRepository extends JooreoDao<ReservationRecord> {
 
     public ReservationRecord getById(UUID id) {
-        return dsl.select().from(RESERVATION).where(RESERVATION.ID.eq(id)).fetchOne(toRecord());
+        return dsl.select().from(table()).where(RESERVATION.ID.eq(id)).fetchOne(toRecord());
     }
 }

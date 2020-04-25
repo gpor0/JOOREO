@@ -37,7 +37,7 @@ public abstract class JooreoDao<R extends TableRecord> {
     protected DSLContext dsl;
 
     protected Class<R> clazz;
-    protected Table<R> table;
+    private Table<R> table;
 
     protected JooreoInsertFilter onInsert = new OnInsertDefaultFilter();
     protected JooreoRecordFilter onUpdate = new OnUpdateDefaultFilter();
@@ -75,11 +75,15 @@ public abstract class JooreoDao<R extends TableRecord> {
         }
     }
 
+    public Table<R> table() {
+        return table;
+    }
+
     public Queried<R> getAll() {
 
-        int count = dsl.fetchCount(table);
+        int count = dsl.fetchCount(table());
 
-        Stream<R> ts = dsl.selectFrom(table).fetch(toRecord()).stream();
+        Stream<R> ts = dsl.selectFrom(table()).fetch(toRecord()).stream();
 
         return Queried.result(Long.valueOf(count), ts);
     }
@@ -90,7 +94,7 @@ public abstract class JooreoDao<R extends TableRecord> {
 
     public Queried<R> getPaginatedByOperations(Integer offset, Integer limit, DataOperation[] operations, DataOperation... additionalOperations) {
 
-        Table<R> tmp = table;
+        Table<R> tmp = table();
         SelectWhereStep<R> selectStep = dsl.selectFrom(tmp);
 
         List<Condition> filterBy = new LinkedList<>();
@@ -147,7 +151,7 @@ public abstract class JooreoDao<R extends TableRecord> {
                     String[] childField = fieldName.split("\\.");
                     return childField.length == 1;
                 })
-                .map(op -> Jooreo.buildCondition(table, op)).collect(Collectors.toList());
+                .map(op -> Jooreo.buildCondition(table(), op)).collect(Collectors.toList());
     }
 
     protected List<SortField<?>> getSortFields(DataOperation... operations) {
@@ -156,7 +160,7 @@ public abstract class JooreoDao<R extends TableRecord> {
                 .map(op -> {
                     String fieldName = ((OrderByOperation) op).getField();
                     Field<?> field =
-                            table.fieldStream().filter(column -> column.getName().equalsIgnoreCase(fieldName)).findFirst().orElseThrow(() -> new UnsupportedParameterException(fieldName, ((OrderByOperation) op).isAsc() ? "asc" : "desc"));
+                            table().fieldStream().filter(column -> column.getName().equalsIgnoreCase(fieldName)).findFirst().orElseThrow(() -> new UnsupportedParameterException(fieldName, ((OrderByOperation) op).isAsc() ? "asc" : "desc"));
                     return ((OrderByOperation) op).isAsc() ? field.asc() : field.desc();
                 }).collect(Collectors.toList());
     }
