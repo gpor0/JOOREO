@@ -11,7 +11,7 @@ public class UnsupportedParameterException extends IllegalArgumentException {
     private Object[] fieldValues;
 
     public UnsupportedParameterException(String field, Object value, Object... fieldVal) {
-        super("Unsupported parameter \"" + value + "\" for field " + field + " " + (fieldVal != null ? fieldVal : ""));
+        super("Unsupported value \"" + value + "\" for field " + field + " " + (fieldVal != null ? fieldVal : ""));
         this.field = field;
         this.value = value;
         this.fieldValues = fieldVal;

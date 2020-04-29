@@ -29,7 +29,7 @@ public class RestUtil {
     }
 
     public static String camelToSnake(String str) {
-        return str.replaceAll("(?<!^|_|[A-Z])([A-Z])", "_l$1");
+        return str == null ? null :str.replaceAll("(?<!^|_|[A-Z])([A-Z])", "_$1").toLowerCase();
     }
 
     public static DataOperation[] buildOperations(UriInfo uri) {
