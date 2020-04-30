@@ -17,6 +17,11 @@ public class UnsupportedParameterException extends IllegalArgumentException {
         this.fieldValues = fieldVal;
     }
 
+    public UnsupportedParameterException(String field) {
+        super("Unsupported field " + field);
+        this.field = field;
+    }
+
     public String getField() {
         return field;
     }

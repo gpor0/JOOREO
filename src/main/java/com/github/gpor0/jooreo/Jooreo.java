@@ -13,6 +13,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.sql.Timestamp;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +40,13 @@ public class Jooreo {
 
             String fieldName = fieldNameStr;
 
-            Object val = ((FilterOperation) op).getValue();
+            Field field = table.fieldStream().filter(column -> column.getName().equalsIgnoreCase(fieldName)).findFirst().orElseThrow(() -> new UnsupportedParameterException(fieldName));
 
-            Field field = table.fieldStream().filter(column -> column.getName().equalsIgnoreCase(fieldName)).findFirst().orElseThrow(() -> new UnsupportedParameterException(fieldName, Objects.toString(val, null)));
+            Object val = ((FilterOperation) op).getValue();
+            if (val != null && val instanceof String && field.getDataType().isDateTime()) {
+                //todo support converters
+                val = new Timestamp(Long.valueOf((String) val)).toLocalDateTime();
+            }
 
             String operation = ((FilterOperation) op).getOperation().toUpperCase();
 
