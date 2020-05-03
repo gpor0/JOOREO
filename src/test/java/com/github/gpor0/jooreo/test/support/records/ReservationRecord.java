@@ -1,6 +1,7 @@
 package com.github.gpor0.jooreo.test.support.records;
 
 import com.github.gpor0.jooreo.Jooreo;
+import com.github.gpor0.jooreo.annotations.ManyToOne;
 import com.github.gpor0.jooreo.annotations.OnInsertFilter;
 import com.github.gpor0.jooreo.annotations.OneToMany;
 import com.github.gpor0.jooreo.dao.records.tables.records.BaseReservationRecord;
@@ -14,6 +15,7 @@ import static com.github.gpor0.jooreo.dao.records.Tables.RESERVATION_FLIGHT;
 @OnInsertFilter(AuditCreateFilter.class)
 public class ReservationRecord extends BaseReservationRecord {
 
+    @ManyToOne
     private CustomerRecord customer;
 
     @OneToMany

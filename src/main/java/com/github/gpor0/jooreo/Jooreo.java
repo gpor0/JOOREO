@@ -1,5 +1,6 @@
 package com.github.gpor0.jooreo;
 
+import com.github.gpor0.jooreo.annotations.ManyToOne;
 import com.github.gpor0.jooreo.annotations.OneToMany;
 import com.github.gpor0.jooreo.dao.record.JooreoRecord;
 import com.github.gpor0.jooreo.exceptions.ParameterSyntaxException;
@@ -22,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.github.gpor0.jooreo.RestUtil.camelToSnake;
+
 /**
  * Author: gpor0
  */
@@ -38,7 +41,7 @@ public class Jooreo {
                 fieldNameStr = split[split.length - 1];
             }
 
-            String fieldName = fieldNameStr;
+            String fieldName = camelToSnake(fieldNameStr);
 
             Field field = table.fieldStream().filter(column -> column.getName().equalsIgnoreCase(fieldName)).findFirst().orElseThrow(() -> new UnsupportedParameterException(fieldName));
 
@@ -157,28 +160,30 @@ public class Jooreo {
                     String childObjName = childFieldSplit[0];
 
                     for (java.lang.reflect.Field f : clazz.getDeclaredFields()) {
-                        if (f.getAnnotation(OneToMany.class) != null) {
+                        if (f.getAnnotation(OneToMany.class) != null || f.getAnnotation(ManyToOne.class) != null) {
                             if (f.getName().toLowerCase().equals(childObjName)) {
                                 Type genericReturnType = f.getAnnotatedType().getType();
+                                Class<TableRecord> childClass;
                                 if (genericReturnType instanceof ParameterizedType) {
-                                    Class<TableRecord> childClass =
-                                            ((Class<TableRecord>) ((ParameterizedType) genericReturnType).getActualTypeArguments()[0]);
-
-                                    //cache
-                                    if (!CLASS_TABLE_MAP.containsKey(childClass)) {
-                                        try {
-                                            Constructor<TableRecord> constructor = childClass.getConstructor();
-                                            TableRecord tableRecord = constructor.newInstance();
-                                            CLASS_TABLE_MAP.putIfAbsent(childClass, tableRecord.getTable());
-                                        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                                            throw new UnsupportedParameterException(fieldName, ((FilterOperation) op).getValue());
-                                        }
-                                    }
-
-                                    Table childTable = CLASS_TABLE_MAP.get(childClass);
-
-                                    return new AbstractMap.SimpleEntry<>(childTable, Jooreo.buildCondition(childTable, op));
+                                    childClass = ((Class<TableRecord>) ((ParameterizedType) genericReturnType).getActualTypeArguments()[0]);
+                                } else {
+                                    childClass = (Class<TableRecord>) genericReturnType;
                                 }
+                                //cache
+                                if (!CLASS_TABLE_MAP.containsKey(childClass)) {
+                                    try {
+                                        Constructor<TableRecord> constructor = childClass.getConstructor();
+                                        TableRecord tableRecord = constructor.newInstance();
+                                        CLASS_TABLE_MAP.putIfAbsent(childClass, tableRecord.getTable());
+                                    } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                                        throw new UnsupportedParameterException(fieldName, ((FilterOperation) op).getValue());
+                                    }
+                                }
+
+                                Table childTable = CLASS_TABLE_MAP.get(childClass);
+
+                                return new AbstractMap.SimpleEntry<>(childTable, Jooreo.buildCondition(childTable, op));
+
                             }
                         }
                     }
@@ -188,9 +193,18 @@ public class Jooreo {
                     Table childTable = e.getKey();
                     List<Condition> childTableConditions = e.getValue().stream().map(AbstractMap.SimpleEntry::getValue).collect(Collectors.toList());
                     List<ForeignKey<Record, R>> references = parentTable.getReferencesFrom(childTable);
-                    ForeignKey<Record, R> recordFk = references.get(0);
-                    Field fkTableField = recordFk.getFields().get(0);
-                    Field primaryKey = parentTable.getPrimaryKey().getFields().get(0);
+                    Field fkTableField;
+                    Field primaryKey;
+                    if (references.isEmpty()) {
+                        references = childTable.getReferencesFrom(parentTable);
+                        ForeignKey<Record, R> recordFk = references.get(0);
+                        primaryKey = (Field) childTable.getPrimaryKey().getFields().get(0);
+                        fkTableField = recordFk.getFields().get(0);
+                    } else {
+                        ForeignKey<Record, R> recordFk = references.get(0);
+                        fkTableField = recordFk.getFields().get(0);
+                        primaryKey = parentTable.getPrimaryKey().getFields().get(0);
+                    }
 
                     return dsl.selectOne().from(childTable).where(childTableConditions).and(fkTableField.eq(primaryKey));
                 }).collect(Collectors.toList());
