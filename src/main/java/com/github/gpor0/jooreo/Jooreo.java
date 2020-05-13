@@ -15,10 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.sql.Timestamp;
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,9 +43,13 @@ public class Jooreo {
             Field field = table.fieldStream().filter(column -> column.getName().equalsIgnoreCase(fieldName)).findFirst().orElseThrow(() -> new UnsupportedParameterException(fieldName));
 
             Object val = ((FilterOperation) op).getValue();
-            if (val != null && val instanceof String && field.getDataType().isDateTime()) {
+            if (val != null && val instanceof String) {
+                if (field.getDataType().isDateTime()) {
+                    val = new Timestamp(Long.valueOf((String) val)).toLocalDateTime();
+                } else if (field.getDataType().getType() == UUID.class) {
+                    val = UUID.fromString((String) val);
+                }
                 //todo support converters
-                val = new Timestamp(Long.valueOf((String) val)).toLocalDateTime();
             }
 
             String operation = ((FilterOperation) op).getOperation().toUpperCase();
@@ -57,9 +58,9 @@ public class Jooreo {
                 String strValue = Objects.toString(val, null);
                 switch (operation) {
                     case "LIKE":
-                        return field.like(strValue);
+                        return field.like(strValue.replace("*", "%"));
                     case "LIKEIC":
-                        return field.likeIgnoreCase(strValue);
+                        return field.likeIgnoreCase(strValue.replace("*", "%"));
                     case "NEQIC":
                         return field.notEqualIgnoreCase(strValue);
                     case "EQIC":
@@ -161,7 +162,7 @@ public class Jooreo {
 
                     for (java.lang.reflect.Field f : clazz.getDeclaredFields()) {
                         if (f.getAnnotation(OneToMany.class) != null || f.getAnnotation(ManyToOne.class) != null) {
-                            if (f.getName().toLowerCase().equals(childObjName)) {
+                            if (f.getName().equals(childObjName)) {
                                 Type genericReturnType = f.getAnnotatedType().getType();
                                 Class<TableRecord> childClass;
                                 if (genericReturnType instanceof ParameterizedType) {

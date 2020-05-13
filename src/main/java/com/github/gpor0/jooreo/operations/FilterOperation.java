@@ -1,6 +1,5 @@
 package com.github.gpor0.jooreo.operations;
 
-import com.github.gpor0.jooreo.RestUtil;
 import com.github.gpor0.jooreo.exceptions.ParameterSyntaxException;
 
 /**
@@ -25,7 +24,7 @@ public class FilterOperation implements DataOperation {
             throw new ParameterSyntaxException("filter", filter);
         }
 
-        String field = RestUtil.camelToSnake(filterStr[0]);
+        String field = filterStr[0];
         String op = filterStr[1];
         String val = null;
 
