@@ -48,6 +48,8 @@ public class Jooreo {
                     val = new Timestamp(Long.valueOf((String) val)).toLocalDateTime();
                 } else if (field.getDataType().getType() == UUID.class) {
                     val = UUID.fromString((String) val);
+                } else if (field.getDataType().isInteger() && ("false".equals(val) || "true".equals(val))) {
+                    val = Boolean.valueOf((String) val) ? 1 : 0;
                 }
                 //todo support converters
             }

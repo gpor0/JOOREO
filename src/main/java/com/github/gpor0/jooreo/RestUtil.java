@@ -6,6 +6,7 @@ import com.github.gpor0.jooreo.operations.OrderByOperation;
 
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.Optional;
 import java.util.regex.MatchResult;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -29,7 +30,13 @@ public class RestUtil {
     }
 
     public static String camelToSnake(String str) {
-        return str == null ? null :str.replaceAll("(?<!^|_|[A-Z])([A-Z])", "_$1").toLowerCase();
+        return str == null ? null : str.replaceAll("(?<!^|_|[A-Z])([A-Z])", "_$1").toLowerCase();
+    }
+
+    public static Optional<FilterOperation> getFilterOperation(UriInfo uri, String fieldName) {
+        return Stream.of(buildOperations(uri))
+                .filter(op -> op instanceof FilterOperation)
+                .map(op -> (FilterOperation) op).filter(op -> fieldName.equals(op.getField())).findFirst();
     }
 
     public static DataOperation[] buildOperations(UriInfo uri) {

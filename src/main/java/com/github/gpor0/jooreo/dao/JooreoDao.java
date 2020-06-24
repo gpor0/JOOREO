@@ -4,6 +4,7 @@ import com.github.gpor0.jooreo.*;
 import com.github.gpor0.jooreo.annotations.OnDeleteFilter;
 import com.github.gpor0.jooreo.annotations.OnInsertFilter;
 import com.github.gpor0.jooreo.annotations.OnUpdateFilter;
+import com.github.gpor0.jooreo.dao.record.JooreoRecord;
 import com.github.gpor0.jooreo.exceptions.UnsupportedParameterException;
 import com.github.gpor0.jooreo.filters.defaults.OnDeleteDefaultFilter;
 import com.github.gpor0.jooreo.filters.defaults.OnInsertDefaultFilter;
@@ -19,7 +20,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,11 +37,10 @@ public abstract class JooreoDao<R extends TableRecord> {
     protected DSLContext dsl;
 
     protected Class<R> clazz;
-    private Table<R> table;
-
     protected JooreoInsertFilter onInsert = new OnInsertDefaultFilter();
     protected JooreoRecordFilter onUpdate = new OnUpdateDefaultFilter();
     protected JooreoRecordFilter onDelete = new OnDeleteDefaultFilter();
+    private Table<R> table;
 
     private static final JooreoRecordFilter createFilterInstance(Class<?> f) {
         try {
@@ -97,22 +96,18 @@ public abstract class JooreoDao<R extends TableRecord> {
         Table<R> tmp = table();
         SelectWhereStep<R> selectStep = dsl.selectFrom(tmp);
 
-        List<Condition> filterBy = new LinkedList<>();
-        List<SelectConditionStep<Record1<Integer>>> existsConditions = new LinkedList<>();
-        List<SortField<?>> orderBy = null;
-        if (operations != null && operations.length > 0) {
+        DataOperation[] ops = operations == null ? new DataOperation[]{} : operations;
 
-            if (additionalOperations != null && additionalOperations.length > 0) {
-                operations = Arrays.copyOf(operations, operations.length + additionalOperations.length);
-                for (int i = 0; i < additionalOperations.length; i++) {
-                    operations[operations.length - additionalOperations.length + i] = additionalOperations[i];
-                }
+        if (additionalOperations != null && additionalOperations.length > 0) {
+            ops = Arrays.copyOf(ops, ops.length + additionalOperations.length);
+            for (int i = 0; i < additionalOperations.length; i++) {
+                ops[ops.length - additionalOperations.length + i] = additionalOperations[i];
             }
-
-            filterBy = getFilterFields(operations);
-            existsConditions = Jooreo.getExistConditions(clazz, dsl, tmp, operations);
-            orderBy = getSortFields(operations);
         }
+
+        List<Condition> filterBy = getFilterFields(ops);
+        List<SelectConditionStep<Record1<Integer>>> existsConditions = Jooreo.getExistConditions(clazz, dsl, tmp, ops);
+        List<SortField<?>> orderBy = getSortFields(ops);
 
         Field<Integer> deletedField =
                 (Field<Integer>) tmp.fieldStream().filter(column -> column.getName().equals("deleted")).findFirst().orElse(null);
@@ -166,6 +161,9 @@ public abstract class JooreoDao<R extends TableRecord> {
     }
 
     public int create(R r) {
+        if (r instanceof JooreoRecord) {
+            ((JooreoRecord) r).dsl(dsl);
+        }
         return onInsert.filter(dsl, r);
     }
 

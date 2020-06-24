@@ -7,12 +7,16 @@ import org.jooq.TableRecord;
 public class OnInsertDefaultFilter implements JooreoInsertFilter {
 
     @Override
-    public int filter(DSLContext dsl, TableRecord r) {
+    public <T extends TableRecord> int filter(DSLContext dsl, T r) {
 
         if (r == null) {
             return 0;
         }
 
-        return dsl.executeInsert(r);
+        if (r.configuration() == null) {
+            r.attach(dsl.configuration());
+        }
+
+        return r.insert();
     }
 }
