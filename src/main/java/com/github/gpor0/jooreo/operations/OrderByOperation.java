@@ -1,6 +1,6 @@
 package com.github.gpor0.jooreo.operations;
 
-import com.github.gpor0.jooreo.RestUtil;
+import com.github.gpor0.jooreo.Jooreo;
 import com.github.gpor0.jooreo.exceptions.ParameterSyntaxException;
 
 /**
@@ -23,7 +23,7 @@ public class OrderByOperation implements DataOperation {
         }
 
         //provides camelCase (API) to snake_case (db)
-        return new OrderByOperation(RestUtil.camelToSnake(fieldOrderStr[0]),
+        return new OrderByOperation(Jooreo.camelToSnake(fieldOrderStr[0]),
                 "asc".toLowerCase().equals(fieldOrderStr[1] == null ? null : fieldOrderStr[1].toLowerCase()));
     }
 

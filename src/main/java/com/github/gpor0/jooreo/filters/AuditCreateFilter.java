@@ -1,7 +1,7 @@
 package com.github.gpor0.jooreo.filters;
 
 
-import com.github.gpor0.jooreo.LoggedUser;
+import com.github.gpor0.jooreo.RequestContextProxy;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.TableRecord;
@@ -22,7 +22,7 @@ public class AuditCreateFilter extends RandomUUIDCreateFilter {
     @Override
     public <T extends TableRecord> int filter(DSLContext dsl, T r) {
         Timestamp now = new Timestamp(new Date().getTime());
-        UUID userId = CDI.current().select(LoggedUser.class).get().getId();
+        UUID userId = CDI.current().select(RequestContextProxy.class).get().getId();
 
         Field dcField = getField(r, "dc");
         if (dcField != null) {

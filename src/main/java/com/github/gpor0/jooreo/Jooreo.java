@@ -20,8 +20,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.github.gpor0.jooreo.RestUtil.camelToSnake;
-
 /**
  * Author: gpor0
  */
@@ -226,4 +224,9 @@ public class Jooreo {
             return result;
         };
     }
+
+    public static String camelToSnake(String str) {
+        return str == null ? null : str.replaceAll("(?<!^|_|[A-Z])([A-Z])", "_$1").toLowerCase();
+    }
+
 }

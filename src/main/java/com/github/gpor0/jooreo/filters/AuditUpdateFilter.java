@@ -1,7 +1,7 @@
 package com.github.gpor0.jooreo.filters;
 
 import com.github.gpor0.jooreo.JooreoRecordFilter;
-import com.github.gpor0.jooreo.LoggedUser;
+import com.github.gpor0.jooreo.RequestContextProxy;
 import com.github.gpor0.jooreo.filters.defaults.OnUpdateDefaultFilter;
 import org.jooq.DSLContext;
 import org.jooq.Field;
@@ -23,7 +23,7 @@ public class AuditUpdateFilter extends OnUpdateDefaultFilter implements JooreoRe
     @Override
     public TableRecord filter(DSLContext dsl, TableRecord r) {
         Timestamp now = new Timestamp(new Date().getTime());
-        UUID userId = CDI.current().select(LoggedUser.class).get().getId();
+        UUID userId = CDI.current().select(RequestContextProxy.class).get().getId();
 
 
         Field dmField = getField(r, "dm");

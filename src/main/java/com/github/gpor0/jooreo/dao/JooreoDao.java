@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 public abstract class JooreoDao<R extends TableRecord> {
 
     @Inject
-    protected LoggedUser user;
+    protected RequestContextProxy user;
 
     @Inject
     protected DSLContext dsl;
