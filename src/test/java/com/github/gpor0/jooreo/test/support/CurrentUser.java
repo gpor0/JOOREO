@@ -14,8 +14,8 @@ import java.util.UUID;
 public class CurrentUser implements RequestContextProxy {
 
     @Override
-    public <T> T getId() {
-        return (T) UUID.randomUUID();
+    public UUID getId() {
+        return UUID.randomUUID();
     }
 
     @Override

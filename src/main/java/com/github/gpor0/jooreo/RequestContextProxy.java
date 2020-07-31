@@ -2,6 +2,7 @@ package com.github.gpor0.jooreo;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Author: gpor0
@@ -10,7 +11,7 @@ import java.util.Set;
  */
 public interface RequestContextProxy {
 
-    <T> T getId();
+    UUID getId();
 
     Set<String> getRoles();
 
