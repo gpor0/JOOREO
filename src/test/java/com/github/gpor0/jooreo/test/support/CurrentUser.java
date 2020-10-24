@@ -29,6 +29,11 @@ public class CurrentUser implements RequestContextProxy {
     }
 
     @Override
+    public Optional<String> language() {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Boolean> hasRel(String rel) {
         return Optional.empty();
     }

@@ -17,6 +17,8 @@ public interface RequestContextProxy {
 
     boolean hasRole(String role);
 
+    Optional<String> language();
+
     Optional<Boolean> hasRel(String rel);
 
     String getBasePath();
