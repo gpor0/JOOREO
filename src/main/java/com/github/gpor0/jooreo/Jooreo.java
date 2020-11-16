@@ -43,7 +43,7 @@ public class Jooreo {
             Object val = ((FilterOperation) op).getValue();
             if (val != null && val instanceof String) {
                 if (field.getDataType().isDateTime()) {
-                    val = new Timestamp(Long.valueOf((String) val)).toLocalDateTime();
+                    val = new Timestamp(Long.parseLong((String) val)).toLocalDateTime();
                 } else if (field.getDataType().getType() == UUID.class) {
                     val = UUID.fromString((String) val);
                 } else if (field.getDataType().isInteger() && ("false".equals(val) || "true".equals(val))) {
@@ -115,7 +115,7 @@ public class Jooreo {
         if (type == Integer.class) {
             return Integer.valueOf(strValue);
         } else if (type == java.sql.Date.class) {
-            return new java.sql.Date(Integer.valueOf(strValue));
+            return new java.sql.Date(Long.parseLong(strValue));
         }
 
         return strValue;
