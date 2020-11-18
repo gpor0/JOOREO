@@ -6,7 +6,7 @@
     <groupId>com.github.gpor0</groupId>
     <artifactId>jooreo</artifactId>
     <packaging>jar</packaging>
-    <version>0.2.3-SNAPSHOT</version>
+    <version>0.2.3</version>
 
     <description>JOOq REst Oriented</description>
     <url>https://github.com/gpor0/JOOREO</url>
