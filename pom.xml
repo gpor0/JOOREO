@@ -8,7 +8,7 @@
 
     <name>jOOreo</name>
     <packaging>jar</packaging>
-    <version>1.2.4-SNAPSHOT</version>
+    <version>0.2.4-SNAPSHOT</version>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -55,7 +55,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <surefire-plugin.version>2.22.2</surefire-plugin.version>
         <org.jooq.version>3.13.6</org.jooq.version>
-        <jooreo-gen.version>0.2.1</jooreo-gen.version>
+        <jooreo-gen.version>0.2.4</jooreo-gen.version>
         <jakarta.inject.version>1.0</jakarta.inject.version>
         <jakarta.annotation.version>1.3.5</jakarta.annotation.version>
         <jakarta.cdi-api.version>2.0.2</jakarta.cdi-api.version>
@@ -77,6 +77,7 @@
             <groupId>com.github.gpor0</groupId>
             <artifactId>jooreo-gen</artifactId>
             <version>${jooreo-gen.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.inject</groupId>
@@ -258,6 +259,12 @@
                         <goals>
                             <goal>sign</goal>
                         </goals>
+                        <configuration>
+                            <gpgArguments>
+                                <gpgArgument>--pinentry-mode</gpgArgument>
+                                <gpgArgument>loopback</gpgArgument>
+                            </gpgArguments>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -306,4 +313,12 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>deploy</id>
+            <build>
+            </build>
+        </profile>
+    </profiles>
 </project>
