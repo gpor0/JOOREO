@@ -26,7 +26,7 @@ public class AuditCreateFilter extends RandomUUIDCreateFilter {
 
         Field dcField = getField(r, "dc");
         if (dcField != null) {
-            r.setValue(dcField, Convert.convert(now, Timestamp.class));
+            r.setValue(dcField, Convert.convert(now, dcField.getType()));
         }
         Field ucField = getField(r, "uc");
         if (ucField != null) {
@@ -34,7 +34,7 @@ public class AuditCreateFilter extends RandomUUIDCreateFilter {
         }
         Field dmField = getField(r, "dm");
         if (dmField != null) {
-            r.setValue(dmField, Convert.convert(now, Timestamp.class));
+            r.setValue(dmField, Convert.convert(now, dmField.getType()));
         }
 
         Field umField = getField(r, "um");
