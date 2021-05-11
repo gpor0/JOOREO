@@ -27,7 +27,7 @@ public class Jooreo {
 
     private static final Map<Class, Table> CLASS_TABLE_MAP = new ConcurrentHashMap<>();
 
-    public static final <R extends TableRecord> Condition buildCondition(Table<R> table, DataOperation op) {
+    public static final <R extends TableRecord> Condition buildCondition(Table<? extends Record> table, DataOperation op) {
         {
             String fieldNameStr = ((FilterOperation) op).getField();
 
@@ -147,7 +147,7 @@ public class Jooreo {
      */
     public static <R extends TableRecord> List<SelectConditionStep<Record1<Integer>>> getExistConditions(Class<?> clazz,
                                                                                                          DSLContext dsl,
-                                                                                                         Table<R> parentTable,
+                                                                                                         Table<? extends Record> parentTable,
                                                                                                          DataOperation[] operations) {
         return Stream.of(operations)
                 .filter(operation -> operation != null && operation.getClass() == FilterOperation.class)

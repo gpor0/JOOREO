@@ -13,12 +13,14 @@ import com.github.gpor0.jooreo.operations.DataOperation;
 import com.github.gpor0.jooreo.operations.FilterOperation;
 import com.github.gpor0.jooreo.operations.OrderByOperation;
 import org.jooq.*;
+import org.jooq.impl.DSL;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +42,7 @@ public abstract class JooreoDao<R extends TableRecord> {
     protected JooreoInsertFilter onInsert = new OnInsertDefaultFilter();
     protected JooreoRecordFilter onUpdate = new OnUpdateDefaultFilter();
     protected JooreoRecordFilter onDelete = new OnDeleteDefaultFilter();
-    private Table<R> table;
+    private Table<? extends Record> table;
 
     private static final JooreoRecordFilter createFilterInstance(Class<?> f) {
         try {
@@ -74,15 +76,20 @@ public abstract class JooreoDao<R extends TableRecord> {
         }
     }
 
-    public Table<R> table() {
+    public Table<? extends Record> table() {
         return table;
     }
 
+    public SelectWhereStep<? extends Record> customSelect() {
+        return null;
+    }
+
     public Queried<R> getAll() {
+        SelectWhereStep<? extends Record> customSelect = customSelect();
+        int count = customSelect == null ? dsl.fetchCount(table()) : dsl.fetchCount(customSelect);
 
-        int count = dsl.fetchCount(table());
-
-        Stream<R> ts = dsl.selectFrom(table()).fetch(toRecord()).stream();
+        Select<? extends Record> select = customSelect == null ? dsl.selectFrom(table()) : customSelect;
+        Stream<R> ts = select.fetch(toRecord()).stream();
 
         return Queried.result(Long.valueOf(count), ts);
     }
@@ -93,8 +100,9 @@ public abstract class JooreoDao<R extends TableRecord> {
 
     public Queried<R> getPaginatedByOperations(Integer offset, Integer limit, DataOperation[] operations, DataOperation... additionalOperations) {
 
-        Table<R> tmp = table();
-        SelectWhereStep<R> selectStep = dsl.selectFrom(tmp);
+        final Table<? extends Record> table = table();
+        final SelectWhereStep<? extends Record> customSelect = customSelect();
+        final SelectWhereStep<? extends Record> selectStep = customSelect == null ? dsl.selectFrom(table) : customSelect;
 
         DataOperation[] ops = operations == null ? new DataOperation[]{} : operations;
 
@@ -106,31 +114,34 @@ public abstract class JooreoDao<R extends TableRecord> {
         }
 
         List<Condition> filterBy = getFilterFields(ops);
-        List<SelectConditionStep<Record1<Integer>>> existsConditions = Jooreo.getExistConditions(clazz, dsl, tmp, ops);
+        List<SelectConditionStep<Record1<Integer>>> existsConditions = Jooreo.getExistConditions(clazz, dsl, table, ops);
         List<SortField<?>> orderBy = getSortFields(ops);
 
         Field<Integer> deletedField =
-                (Field<Integer>) tmp.fieldStream().filter(column -> column.getName().equals("deleted")).findFirst().orElse(null);
+                (Field<Integer>) table.fieldStream().filter(column -> column.getName().equals("deleted")).findFirst().orElse(null);
 
         if (deletedField != null) {
             filterBy.add(deletedField.eq(0));
         }
 
+        final List<Condition> conditions = new ArrayList<>();
         if (!filterBy.isEmpty()) {
-            selectStep.where(filterBy);
+            conditions.addAll(filterBy);
         }
 
         for (SelectConditionStep<Record1<Integer>> existsCondition : existsConditions) {
-            selectStep.whereExists(existsCondition);
+            conditions.add(DSL.exists(existsCondition));
         }
 
-        Long count = dsl.selectCount().from(selectStep).fetchOneInto(Long.class);
+        long count = dsl.fetchCount(table, conditions);
+
+        selectStep.where(conditions);
 
         if (orderBy != null && !orderBy.isEmpty()) {
             selectStep.orderBy(orderBy);
         }
 
-        Stream<R> ts = selectStep
+        final Stream<R> ts = selectStep
                 .limit(offset == null ? 0 : offset, limit == null ? 20 : limit).fetch(toRecord())
                 .stream();
 
