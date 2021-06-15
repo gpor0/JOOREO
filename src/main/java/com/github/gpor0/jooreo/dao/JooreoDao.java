@@ -65,7 +65,11 @@ public abstract class JooreoDao<R extends TableRecord> {
     @PostConstruct
     public void init() {
         try {
-            this.clazz = (Class<R>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+            if (this.getClass().getGenericSuperclass() instanceof ParameterizedType) {
+                this.clazz = (Class<R>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+            } else {
+                this.clazz = (Class<R>) ((ParameterizedType) this.getClass().getSuperclass().getGenericSuperclass()).getActualTypeArguments()[0];
+            }
             this.table = clazz.getConstructor().newInstance().getTable();
 
             Optional.ofNullable(this.clazz.getAnnotation(OnInsertFilter.class)).ifPresent(a -> onInsert = createInsertFilterInstance(a.value()));
