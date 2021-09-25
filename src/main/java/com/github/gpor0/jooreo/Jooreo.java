@@ -216,7 +216,7 @@ public class Jooreo {
     }
 
     public static <R extends Record> RecordMapper<Record, R> to(Class<R> recordClass, DSLContext dsl) {
-        return (RecordMapper) record -> {
+        return (RecordMapper<Record, R>) record -> {
             R result = record.into(recordClass);
             if (JooreoRecord.class.isAssignableFrom(recordClass)) {
                 ((JooreoRecord) result).dsl(dsl);

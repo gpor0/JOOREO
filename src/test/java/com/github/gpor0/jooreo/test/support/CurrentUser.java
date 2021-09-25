@@ -19,12 +19,22 @@ public class CurrentUser implements RequestContextProxy {
     }
 
     @Override
-    public Set<String> getRoles() {
+    public Set<String> getIamRoles() {
         return null;
     }
 
     @Override
-    public boolean hasRole(String role) {
+    public boolean hasIamRole(String role) {
+        return false;
+    }
+
+    @Override
+    public Set<String> getScopes() {
+        return null;
+    }
+
+    @Override
+    public boolean hasScope(String scope) {
         return false;
     }
 

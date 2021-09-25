@@ -7,6 +7,7 @@ import org.jooq.impl.DSL;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,7 +35,7 @@ public class I18nUtil {
                 fieldSet.values().stream().map(tr -> DSL.nvl(tr, (Field<?>) b.field(tr.getName())).as(tr.getName()))).collect(Collectors.toSet());
 
         return DSL.select(fields).from(b)
-                .leftOuterJoin(t).on(b.field("id").eq(t.field("id")).and(t.field("language").eq(language))).asTable(baseTable.getName());
+                .leftOuterJoin(t).on(b.field("id", UUID.class).eq(t.field("id", UUID.class)).and(t.field("language", String.class).eq(language))).asTable(baseTable.getName());
     }
 
 }

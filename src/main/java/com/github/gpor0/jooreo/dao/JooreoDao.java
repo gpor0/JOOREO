@@ -126,6 +126,12 @@ public abstract class JooreoDao<R extends TableRecord> {
 
         if (deletedField != null) {
             filterBy.add(deletedField.eq(0));
+        } else {
+            Field<Boolean> isDeletedField =
+                    (Field<Boolean>) table.fieldStream().filter(column -> column.getName().equals("is_deleted")).findFirst().orElse(null);
+            if (isDeletedField != null) {
+                filterBy.add(isDeletedField.eq(false));
+            }
         }
 
         final List<Condition> conditions = new ArrayList<>();

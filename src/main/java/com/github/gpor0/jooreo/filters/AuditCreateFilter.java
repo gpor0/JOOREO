@@ -48,6 +48,11 @@ public class AuditCreateFilter extends RandomUUIDCreateFilter {
         Field delField = getField(r, "deleted");
         if (delField != null) {
             r.setValue(delField, 0);
+        } else {
+            delField = getField(r, "is_deleted");
+            if (delField != null) {
+                r.setValue(delField, false);
+            }
         }
 
         return super.filter(dsl, r);

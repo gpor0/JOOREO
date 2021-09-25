@@ -28,7 +28,7 @@ public class AuditUpdateFilter extends OnUpdateDefaultFilter implements JooreoRe
 
         Field dmField = getField(r, "dm");
         if (dmField != null) {
-            r.setValue(dmField, Convert.convert(now, Timestamp.class));
+            r.setValue(dmField, Convert.convert(now, dmField.getType()));
         }
 
         Field umField = getField(r, "um");

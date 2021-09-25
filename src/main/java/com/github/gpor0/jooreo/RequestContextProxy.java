@@ -13,9 +13,13 @@ public interface RequestContextProxy {
 
     UUID getId();
 
-    Set<String> getRoles();
+    Set<String> getIamRoles();
 
-    boolean hasRole(String role);
+    boolean hasIamRole(String role);
+
+    Set<String> getScopes();
+
+    boolean hasScope(String scope);
 
     Optional<String> language();
 

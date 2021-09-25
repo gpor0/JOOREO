@@ -39,6 +39,11 @@ public class ShallowDeleteFilter extends OnUpdateDefaultFilter implements Jooreo
         if (deletedField != null) {
             //deleted should be integer field
             r.setValue(deletedField, 1);
+        } else {
+            Field isDeletedField = getField(r, "is_deleted");
+            if (isDeletedField != null) {
+                r.setValue(isDeletedField, true);
+            }
         }
 
         //update
