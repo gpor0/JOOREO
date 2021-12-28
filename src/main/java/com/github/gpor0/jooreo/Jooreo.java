@@ -27,6 +27,19 @@ public class Jooreo {
 
     private static final Map<Class, Table> CLASS_TABLE_MAP = new ConcurrentHashMap<>();
 
+    private static Object convertToFieldType(DataType dataType, String value) {
+        if (dataType.isDateTime()) {
+            return new Timestamp(Long.parseLong(value)).toLocalDateTime();
+        } else if (dataType.getType() == UUID.class) {
+            return UUID.fromString(value);
+        } else if (dataType.isInteger() && ("false".equals(value) || "true".equals(value))) {
+            return Boolean.valueOf(value) ? 1 : 0;
+        }
+        //todo support converters
+
+        return value;
+    }
+
     public static final <R extends TableRecord> Condition buildCondition(Table<? extends Record> table, DataOperation op) {
         {
             String fieldNameStr = ((FilterOperation) op).getField();
@@ -42,14 +55,13 @@ public class Jooreo {
 
             Object val = ((FilterOperation) op).getValue();
             if (val != null && val instanceof String) {
-                if (field.getDataType().isDateTime()) {
-                    val = new Timestamp(Long.parseLong((String) val)).toLocalDateTime();
-                } else if (field.getDataType().getType() == UUID.class) {
-                    val = UUID.fromString((String) val);
-                } else if (field.getDataType().isInteger() && ("false".equals(val) || "true".equals(val))) {
-                    val = Boolean.valueOf((String) val) ? 1 : 0;
+                final DataType dataType = field.getDataType();
+                String strVal = (String) val;
+                if (strVal.startsWith("[") && strVal.endsWith("]")) {
+                    val = Stream.of(strVal.substring(1, strVal.length() - 1).split(",")).map(v -> convertToFieldType(dataType, v)).collect(Collectors.toList());
+                } else {
+                    val = convertToFieldType(dataType, strVal);
                 }
-                //todo support converters
             }
 
             String operation = ((FilterOperation) op).getOperation().toUpperCase();
