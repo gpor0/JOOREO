@@ -53,13 +53,13 @@
         <maven.compiler.target>11</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <surefire-plugin.version>2.22.2</surefire-plugin.version>
-        <org.jooq.version>3.15.3</org.jooq.version>
+        <surefire-plugin.version>3.0.0-M5</surefire-plugin.version>
+        <org.jooq.version>3.15.5</org.jooq.version>
         <jooreo-gen.version>0.2.6</jooreo-gen.version>
         <jakarta.inject.version>1.0</jakarta.inject.version>
         <jakarta.annotation.version>1.3.5</jakarta.annotation.version>
         <jakarta.cdi-api.version>2.0.2</jakarta.cdi-api.version>
-        <surefire-plugin.version>2.22.1</surefire-plugin.version>
+        <h2.version>2.0.204</h2.version>
     </properties>
     <dependencies>
         <dependency>
@@ -124,7 +124,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.200</version>
+            <version>${h2.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -150,7 +150,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>${compiler-plugin.version}</version>
                 <configuration>
                     <source>${maven.compiler.source}</source>
                     <target>${maven.compiler.target}</target>
@@ -159,7 +159,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.22.2</version>
+                <version>${surefire-plugin.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.jooq</groupId>
@@ -187,7 +187,7 @@
                     <dependency>
                         <groupId>com.h2database</groupId>
                         <artifactId>h2</artifactId>
-                        <version>1.4.200</version>
+                        <version>${h2.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>javax.xml.bind</groupId>

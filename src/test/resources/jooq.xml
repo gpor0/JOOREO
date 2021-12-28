@@ -1,4 +1,4 @@
-<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.13.0.xsd">
+<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.15.0.xsd">
     <generator>
         <name>com.github.gpor0.jooreoGen.JooreoGen</name>
         <database>
