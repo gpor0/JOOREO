@@ -1,4 +1,4 @@
-<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.15.0.xsd">
+<configuration xmlns="http://www.jooq.org/xsd/jooq-codegen-3.16.0.xsd">
     <generator>
         <name>com.github.gpor0.jooreoGen.JooreoGen</name>
         <database>
@@ -6,7 +6,7 @@
             <properties>
                 <property>
                     <key>scripts</key>
-                    <value>src/test/resources/database.xml</value>
+                    <value>database.xml</value>
                 </property>
                 <property>
                     <key>includeLiquibaseTables</key>

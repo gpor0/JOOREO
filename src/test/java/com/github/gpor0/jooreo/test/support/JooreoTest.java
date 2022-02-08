@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import javax.enterprise.inject.spi.CDI;
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -44,7 +45,8 @@ public abstract class JooreoTest {
     private static void beforeAll() throws LiquibaseException {
         Database database = DatabaseFactory.getInstance()
                 .findCorrectDatabaseImplementation(new JdbcConnection(connection));
-        Liquibase liquibase = new Liquibase(SingleEntityTest.class.getClassLoader().getResource("database.xml").getFile(), new FileSystemResourceAccessor(),
+        File path = new File(SingleEntityTest.class.getClassLoader().getResource("").getFile());
+        Liquibase liquibase = new Liquibase("database.xml", new FileSystemResourceAccessor(path),
                 database);
         liquibase.update("");
     }
