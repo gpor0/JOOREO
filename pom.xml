@@ -8,7 +8,7 @@
 
     <name>jOOreo</name>
     <packaging>jar</packaging>
-    <version>0.2.9</version>
+    <version>0.2.10</version>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -67,17 +67,6 @@
             <groupId>org.jooq</groupId>
             <artifactId>jooq</artifactId>
             <version>${org.jooq.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jooq</groupId>
-            <artifactId>jooq-meta-extensions-liquibase</artifactId>
-            <version>${org.jooq.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.liquibase</groupId>
-                    <artifactId>liquibase-core</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.liquibase</groupId>
@@ -205,6 +194,22 @@
                         <groupId>com.github.gpor0</groupId>
                         <artifactId>jooreo-gen</artifactId>
                         <version>${jooreo-gen.version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.jooq</groupId>
+                        <artifactId>jooq-meta-extensions-liquibase</artifactId>
+                        <version>${org.jooq.version}</version>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>org.liquibase</groupId>
+                                <artifactId>liquibase-core</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.liquibase</groupId>
+                        <artifactId>liquibase-core</artifactId>
+                        <version>${liquibase.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>com.h2database</groupId>

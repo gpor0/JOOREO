@@ -40,7 +40,7 @@ public class Jooreo {
         return value;
     }
 
-    public static final <R extends TableRecord> Condition buildCondition(Table<? extends Record> table, DataOperation op) {
+    public static final <R extends TableRecord> Condition buildCondition(Table<? extends org.jooq.Record> table, DataOperation op) {
         {
             String fieldNameStr = ((FilterOperation) op).getField();
 
@@ -159,7 +159,7 @@ public class Jooreo {
      */
     public static <R extends TableRecord> List<SelectConditionStep<Record1<Integer>>> getExistConditions(Class<?> clazz,
                                                                                                          DSLContext dsl,
-                                                                                                         Table<? extends Record> parentTable,
+                                                                                                         Table<? extends org.jooq.Record> parentTable,
                                                                                                          DataOperation[] operations) {
         return Stream.of(operations)
                 .filter(operation -> operation != null && operation.getClass() == FilterOperation.class)
@@ -205,16 +205,16 @@ public class Jooreo {
                 }).filter(Objects::nonNull).collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey)).entrySet().stream().map(e -> {
                     Table childTable = e.getKey();
                     List<Condition> childTableConditions = e.getValue().stream().map(AbstractMap.SimpleEntry::getValue).collect(Collectors.toList());
-                    List<ForeignKey<Record, R>> references = parentTable.getReferencesFrom(childTable);
+                    List<ForeignKey<org.jooq.Record, R>> references = parentTable.getReferencesFrom(childTable);
                     Field fkTableField;
                     Field primaryKey;
                     if (references.isEmpty()) {
                         references = childTable.getReferencesFrom(parentTable);
-                        ForeignKey<Record, R> recordFk = references.get(0);
+                        ForeignKey<org.jooq.Record, R> recordFk = references.get(0);
                         primaryKey = (Field) childTable.getPrimaryKey().getFields().get(0);
                         fkTableField = recordFk.getFields().get(0);
                     } else {
-                        ForeignKey<Record, R> recordFk = references.get(0);
+                        ForeignKey<org.jooq.Record, R> recordFk = references.get(0);
                         fkTableField = recordFk.getFields().get(0);
                         primaryKey = parentTable.getPrimaryKey().getFields().get(0);
                     }
@@ -223,12 +223,12 @@ public class Jooreo {
                 }).collect(Collectors.toList());
     }
 
-    public static Field getField(Record r, String fieldName) {
+    public static Field getField(org.jooq.Record r, String fieldName) {
         return r.field(fieldName.toLowerCase()) != null ? r.field(fieldName.toLowerCase()) : r.field(fieldName.toUpperCase());
     }
 
-    public static <R extends Record> RecordMapper<Record, R> to(Class<R> recordClass, DSLContext dsl) {
-        return (RecordMapper<Record, R>) record -> {
+    public static <R extends org.jooq.Record> RecordMapper<org.jooq.Record, R> to(Class<R> recordClass, DSLContext dsl) {
+        return (RecordMapper<org.jooq.Record, R>) record -> {
             R result = record.into(recordClass);
             if (JooreoRecord.class.isAssignableFrom(recordClass)) {
                 ((JooreoRecord) result).dsl(dsl);

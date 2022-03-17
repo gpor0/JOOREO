@@ -42,7 +42,7 @@ public abstract class JooreoDao<R extends TableRecord> {
     protected JooreoInsertFilter onInsert = new OnInsertDefaultFilter();
     protected JooreoRecordFilter onUpdate = new OnUpdateDefaultFilter();
     protected JooreoRecordFilter onDelete = new OnDeleteDefaultFilter();
-    private Table<? extends Record> table;
+    private Table<? extends org.jooq.Record> table;
 
     private static final JooreoRecordFilter createFilterInstance(Class<?> f) {
         try {
@@ -80,19 +80,19 @@ public abstract class JooreoDao<R extends TableRecord> {
         }
     }
 
-    public Table<? extends Record> table() {
+    public Table<? extends org.jooq.Record> table() {
         return table;
     }
 
-    public SelectWhereStep<? extends Record> customSelect() {
+    public SelectWhereStep<? extends org.jooq.Record> customSelect() {
         return null;
     }
 
     public Queried<R> getAll() {
-        SelectWhereStep<? extends Record> customSelect = customSelect();
+        SelectWhereStep<? extends org.jooq.Record> customSelect = customSelect();
         int count = customSelect == null ? dsl.fetchCount(table()) : dsl.fetchCount(customSelect);
 
-        Select<? extends Record> select = customSelect == null ? dsl.selectFrom(table()) : customSelect;
+        Select<? extends org.jooq.Record> select = customSelect == null ? dsl.selectFrom(table()) : customSelect;
         Stream<R> ts = select.fetch(toRecord()).stream();
 
         return Queried.result(Long.valueOf(count), ts);
@@ -104,9 +104,9 @@ public abstract class JooreoDao<R extends TableRecord> {
 
     public Queried<R> getPaginatedByOperations(Integer offset, Integer limit, DataOperation[] operations, DataOperation... additionalOperations) {
 
-        final Table<? extends Record> table = table();
-        final SelectWhereStep<? extends Record> customSelect = customSelect();
-        final SelectWhereStep<? extends Record> selectStep = customSelect == null ? dsl.selectFrom(table) : customSelect;
+        final Table<? extends org.jooq.Record> table = table();
+        final SelectWhereStep<? extends org.jooq.Record> customSelect = customSelect();
+        final SelectWhereStep<? extends org.jooq.Record> selectStep = customSelect == null ? dsl.selectFrom(table) : customSelect;
 
         DataOperation[] ops = operations == null ? new DataOperation[]{} : operations;
 
@@ -196,7 +196,7 @@ public abstract class JooreoDao<R extends TableRecord> {
         return onDelete.filter(dsl, r);
     }
 
-    public RecordMapper<Record, R> toRecord() {
+    public RecordMapper<org.jooq.Record, R> toRecord() {
         return Jooreo.to(clazz, dsl);
     }
 }
