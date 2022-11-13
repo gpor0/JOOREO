@@ -5,7 +5,7 @@ import org.jooq.Converter;
 public class BooleanConverter implements Converter<Byte, Boolean> {
     @Override
     public final Boolean from(Byte t) {
-        return t == (byte) 1;
+        return t != null && t == (byte) 1;
     }
 
     @Override
