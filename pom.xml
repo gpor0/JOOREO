@@ -8,7 +8,7 @@
 
     <name>jOOreo</name>
     <packaging>jar</packaging>
-    <version>0.2.13</version>
+    <version>0.2.14</version>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -54,7 +54,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <surefire-plugin.version>3.0.0-M7</surefire-plugin.version>
-        <org.jooq.version>3.16.11</org.jooq.version>
+        <org.jooq.version>3.16.12</org.jooq.version>
         <liquibase.version>4.16.1</liquibase.version>
         <jooreo-gen.version>0.2.8</jooreo-gen.version>
         <jakarta.inject.version>1.0</jakarta.inject.version>
@@ -113,13 +113,13 @@
         <dependency>
             <groupId>org.jboss.narayana.jta</groupId>
             <artifactId>narayana-jta</artifactId>
-            <version>5.10.4.Final</version>
+            <version>5.13.1.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.jboss.naming</groupId>
             <artifactId>jnpserver</artifactId>
-            <version>5.0.3.GA</version>
+            <version>5.0.5.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
