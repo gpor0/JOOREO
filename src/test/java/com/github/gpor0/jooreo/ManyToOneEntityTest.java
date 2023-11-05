@@ -14,7 +14,7 @@ import com.github.gpor0.jooreo.test.support.repositories.ReservationRepository;
 import org.jboss.weld.junit5.EnableWeld;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;

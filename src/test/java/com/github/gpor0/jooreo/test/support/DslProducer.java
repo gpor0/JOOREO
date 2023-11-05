@@ -8,7 +8,7 @@ import org.jooq.conf.Settings;
 import org.jooq.impl.DSL;
 import org.jooq.impl.ThreadLocalTransactionProvider;
 
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.inject.Produces;
 import java.sql.Connection;
 
 /**

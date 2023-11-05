@@ -12,11 +12,12 @@ import com.github.gpor0.jooreo.filters.defaults.OnUpdateDefaultFilter;
 import com.github.gpor0.jooreo.operations.DataOperation;
 import com.github.gpor0.jooreo.operations.FilterOperation;
 import com.github.gpor0.jooreo.operations.OrderByOperation;
+import jakarta.annotation.PostConstruct;
+import jakarta.inject.Inject;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;

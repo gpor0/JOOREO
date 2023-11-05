@@ -6,7 +6,7 @@ import com.github.gpor0.jooreo.test.support.repositories.CustomerRepository;
 import org.jboss.weld.junit5.EnableWeld;
 import org.junit.jupiter.api.Test;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 /**
  * Author: gpor0

@@ -7,7 +7,7 @@ import org.jooq.Field;
 import org.jooq.TableRecord;
 import org.jooq.tools.Convert;
 
-import javax.enterprise.inject.spi.CDI;
+import jakarta.enterprise.inject.spi.CDI;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.UUID;

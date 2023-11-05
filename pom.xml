@@ -8,7 +8,7 @@
 
     <name>jOOreo</name>
     <packaging>jar</packaging>
-    <version>0.2.15</version>
+    <version>1.0.0-rc.1</version>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -47,20 +47,20 @@
         </repository>
     </distributionManagement>
     <properties>
-        <compiler-plugin.version>3.10.1</compiler-plugin.version>
+        <compiler-plugin.version>3.11.0</compiler-plugin.version>
         <maven.compiler.parameters>true</maven.compiler.parameters>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <surefire-plugin.version>3.0.0-M9</surefire-plugin.version>
-        <org.jooq.version>3.16.14</org.jooq.version>
-        <liquibase.version>4.18.0</liquibase.version>
-        <jooreo-gen.version>0.2.8</jooreo-gen.version>
-        <jakarta.inject.version>1.0</jakarta.inject.version>
-        <jakarta.annotation.version>1.3.5</jakarta.annotation.version>
-        <jakarta.cdi-api.version>2.0.2</jakarta.cdi-api.version>
-        <h2.version>2.1.214</h2.version>
+        <surefire-plugin.version>3.1.2</surefire-plugin.version>
+        <org.jooq.version>3.18.7</org.jooq.version>
+        <liquibase.version>4.24.0</liquibase.version>
+        <jooreo-gen.version>1.0.0-rc.1</jooreo-gen.version>
+        <jakarta.inject.version>2.0.1</jakarta.inject.version>
+        <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
+        <jakarta.cdi-api.version>4.0.1</jakarta.cdi-api.version>
+        <h2.version>2.2.224</h2.version>
     </properties>
     <dependencies>
         <dependency>
@@ -92,17 +92,17 @@
             <version>${jakarta.cdi-api.version}</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.jboss.spec.javax.ws.rs</groupId>
             <artifactId>jboss-jaxrs-api_2.1_spec</artifactId>
             <version>2.0.1.Final</version>
             <scope>provided</scope>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>org.jboss.weld</groupId>
             <artifactId>weld-junit5</artifactId>
-            <version>2.0.2.Final</version>
+            <version>4.0.1.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -114,7 +114,7 @@
         <dependency>
             <groupId>org.jboss.narayana.jta</groupId>
             <artifactId>narayana-jta</artifactId>
-            <version>5.13.1.Final</version>
+            <version>7.0.0.Final</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>4.9.0</version>
+            <version>5.7.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -198,21 +198,6 @@
                         <groupId>com.h2database</groupId>
                         <artifactId>h2</artifactId>
                         <version>${h2.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>javax.xml.bind</groupId>
-                        <artifactId>jaxb-api</artifactId>
-                        <version>2.3.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-impl</artifactId>
-                        <version>2.3.1</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>com.sun.xml.bind</groupId>
-                        <artifactId>jaxb-core</artifactId>
-                        <version>2.3.0</version>
                     </dependency>
                 </dependencies>
                 <configuration>
@@ -294,7 +279,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
-                        <version>3.2.1</version>
+                        <version>3.3.0</version>
                         <executions>
                             <execution>
                                 <id>attach-sources</id>
@@ -307,7 +292,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
-                        <version>3.4.1</version>
+                        <version>3.6.0</version>
                         <executions>
                             <execution>
                                 <id>attach-javadocs</id>
@@ -320,7 +305,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.0.1</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <id>sign-artifacts</id>

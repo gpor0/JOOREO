@@ -3,7 +3,7 @@ package com.github.gpor0.jooreo.test.support.repositories;
 import com.github.gpor0.jooreo.dao.JooreoDao;
 import com.github.gpor0.jooreo.test.support.records.CustomerRecord;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.UUID;
 
 import static com.github.gpor0.jooreo.dao.records.Tables.CUSTOMER;

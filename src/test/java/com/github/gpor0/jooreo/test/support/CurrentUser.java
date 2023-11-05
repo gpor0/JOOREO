@@ -2,7 +2,7 @@ package com.github.gpor0.jooreo.test.support;
 
 import com.github.gpor0.jooreo.RequestContextProxy;
 
-import javax.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.ApplicationScoped;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
