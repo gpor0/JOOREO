@@ -8,7 +8,7 @@
 
     <name>jOOreo</name>
     <packaging>jar</packaging>
-    <version>1.0.0-rc.1</version>
+    <version>1.0.0</version>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -56,7 +56,7 @@
         <surefire-plugin.version>3.1.2</surefire-plugin.version>
         <org.jooq.version>3.18.7</org.jooq.version>
         <liquibase.version>4.24.0</liquibase.version>
-        <jooreo-gen.version>1.0.0-rc.1</jooreo-gen.version>
+        <jooreo-gen.version>1.0.0</jooreo-gen.version>
         <jakarta.inject.version>2.0.1</jakarta.inject.version>
         <jakarta.annotation.version>2.1.1</jakarta.annotation.version>
         <jakarta.cdi-api.version>4.0.1</jakarta.cdi-api.version>
