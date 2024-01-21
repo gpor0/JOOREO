@@ -7,6 +7,7 @@ import com.github.gpor0.jooreo.exceptions.ParameterSyntaxException;
 import com.github.gpor0.jooreo.exceptions.UnsupportedParameterException;
 import com.github.gpor0.jooreo.operations.DataOperation;
 import com.github.gpor0.jooreo.operations.FilterOperation;
+import org.jooq.Record;
 import org.jooq.*;
 import org.jooq.impl.DSL;
 
@@ -161,6 +162,16 @@ public class Jooreo {
                                                                                                          DSLContext dsl,
                                                                                                          Table<? extends org.jooq.Record> parentTable,
                                                                                                          DataOperation[] operations) {
+        if (clazz != null && !CLASS_TABLE_MAP.containsKey(clazz)) {
+            try {
+                final Constructor<TableRecord> constructor = (Constructor<TableRecord>) clazz.getConstructor();
+                final TableRecord tableRecord = constructor.newInstance();
+                CLASS_TABLE_MAP.putIfAbsent(clazz, tableRecord.getTable());
+            } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                     InvocationTargetException e) {
+            }
+        }
+
         return Stream.of(operations)
                 .filter(operation -> operation != null && operation.getClass() == FilterOperation.class)
                 .filter(op -> {
@@ -188,14 +199,17 @@ public class Jooreo {
                                         Constructor<TableRecord> constructor = childClass.getConstructor();
                                         TableRecord tableRecord = constructor.newInstance();
                                         CLASS_TABLE_MAP.putIfAbsent(childClass, tableRecord.getTable());
-                                    } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                                    } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
+                                             InvocationTargetException e) {
                                         throw new UnsupportedParameterException(fieldName, ((FilterOperation) op).getValue());
                                     }
                                 }
 
-                                Table childTable = CLASS_TABLE_MAP.get(childClass);
+                                final JoinField joinField = new JoinField();
+                                joinField.childTable = CLASS_TABLE_MAP.get(childClass);
+                                joinField.parentClassField = f;
 
-                                return new AbstractMap.SimpleEntry<>(childTable, Jooreo.buildCondition(childTable, op));
+                                return new AbstractMap.SimpleEntry<>(joinField, Jooreo.buildCondition(joinField.childTable, op));
 
                             }
                         }
@@ -203,18 +217,34 @@ public class Jooreo {
 
                     return null;
                 }).filter(Objects::nonNull).collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey)).entrySet().stream().map(e -> {
-                    Table childTable = e.getKey();
+                    JoinField joinField = e.getKey();
+                    Table childTable = joinField.childTable;
                     List<Condition> childTableConditions = e.getValue().stream().map(AbstractMap.SimpleEntry::getValue).collect(Collectors.toList());
-                    List<ForeignKey<org.jooq.Record, R>> references = parentTable.getReferencesFrom(childTable);
-                    Field fkTableField;
+                    List<ForeignKey<Record, R>> references = parentTable.getReferencesFrom(childTable);
+                    Field fkTableField = null;
                     Field primaryKey;
                     if (references.isEmpty()) {
-                        references = childTable.getReferencesFrom(parentTable);
-                        ForeignKey<org.jooq.Record, R> recordFk = references.get(0);
                         primaryKey = (Field) childTable.getPrimaryKey().getFields().get(0);
-                        fkTableField = recordFk.getFields().get(0);
+                        references = childTable.getReferencesFrom(parentTable);
+                        if (!references.isEmpty()) {
+                            ForeignKey<Record, R> recordFk = references.get(0);
+                            fkTableField = recordFk.getFields().get(0);
+                        } else {
+                            java.lang.reflect.Field f = joinField.parentClassField;
+                            Class parentTableClass = CLASS_TABLE_MAP.entrySet().stream().filter(en -> en.getValue().equals(parentTable)).map(en -> en.getKey()).findFirst().orElse(null);
+                            if (parentTableClass == null) {
+                                throw new UnsupportedParameterException("filter", f.getName(), "null");
+                            }
+                            ManyToOne annotation = f.getAnnotation(ManyToOne.class);
+                            if (annotation != null && annotation.field() != null && !annotation.field().isEmpty()) {
+                                fkTableField = parentTable.field(annotation.field());
+                            }
+                            if (fkTableField == null) {
+                                throw new RuntimeException("Unable to build required filter for parent " + parentTable.getName() + " and field " + f.getName());
+                            }
+                        }
                     } else {
-                        ForeignKey<org.jooq.Record, R> recordFk = references.get(0);
+                        ForeignKey<Record, R> recordFk = references.get(0);
                         fkTableField = recordFk.getFields().get(0);
                         primaryKey = parentTable.getPrimaryKey().getFields().get(0);
                     }
@@ -239,6 +269,24 @@ public class Jooreo {
 
     public static String camelToSnake(String str) {
         return str == null ? null : str.replaceAll("(?<!^|_|[A-Z])([A-Z])", "_$1").toLowerCase();
+    }
+
+    private static class JoinField {
+        public java.lang.reflect.Field parentClassField;
+        public Table childTable;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            JoinField joinField = (JoinField) o;
+            return Objects.equals(parentClassField, joinField.parentClassField) && Objects.equals(childTable, joinField.childTable);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(parentClassField, childTable);
+        }
     }
 
 }
