@@ -230,7 +230,7 @@ public class Jooreo {
                             fkTableField = recordFk.getFields().get(0);
                         } else {
                             java.lang.reflect.Field f = joinField.parentClassField;
-                            Class parentTableClass = CLASS_TABLE_MAP.entrySet().stream().filter(en -> en.getValue().equals(parentTable)).map(en -> en.getKey()).findFirst().orElse(null);
+                            Class parentTableClass = CLASS_TABLE_MAP.entrySet().stream().filter(en -> en.getValue().getClass().equals(parentTable.getClass())).map(en -> en.getKey()).findFirst().orElse(null);
                             if (parentTableClass == null) {
                                 throw new UnsupportedParameterException("filter", f.getName(), "null");
                             }
