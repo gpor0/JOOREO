@@ -12,6 +12,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.FIELD)
 public @interface OneToMany {
 
-    String field() default "";
+    String childField() default "";
 
 }

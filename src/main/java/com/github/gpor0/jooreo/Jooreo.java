@@ -235,7 +235,15 @@ public class Jooreo {
                             if (parentTableClass == null) {
                                 throw new UnsupportedParameterException("filter", f.getName(), "null");
                             }
-                            fkTableField = readFieldFromAnnotation(parentTable, f);
+                            ManyToOne mto = f.getAnnotation(ManyToOne.class);
+                            if (mto != null && mto.field() != null && !mto.field().isEmpty()) {
+                                fkTableField = parentTable.field(mto.field());
+                            }
+                            OneToMany otm = f.getAnnotation(OneToMany.class);
+                            if (otm != null && otm.childField() != null && !otm.childField().isEmpty()) {
+                                primaryKey = parentTable.getPrimaryKey().getFields().get(0);
+                                fkTableField = childTable.field(otm.childField());
+                            }
                             if (fkTableField == null) {
                                 throw new RuntimeException("Unable to build required filter for parent " + parentTable.getName() + " and field " + f.getName());
                             }
@@ -248,19 +256,6 @@ public class Jooreo {
 
                     return dsl.selectOne().from(childTable).where(childTableConditions).and(fkTableField.eq(primaryKey));
                 }).collect(Collectors.toList());
-    }
-
-    private static Field readFieldFromAnnotation(Table<? extends Record> parentTable, java.lang.reflect.Field f) {
-        ManyToOne mto = f.getAnnotation(ManyToOne.class);
-        if (mto != null && mto.field() != null && !mto.field().isEmpty()) {
-            return parentTable.field(mto.field());
-        }
-        OneToMany otm = f.getAnnotation(OneToMany.class);
-        if (otm != null && otm.field() != null && !otm.field().isEmpty()) {
-            return parentTable.field(otm.field());
-        }
-
-        return null;
     }
 
     public static Field getField(org.jooq.Record r, String fieldName) {

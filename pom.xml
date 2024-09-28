@@ -8,7 +8,7 @@
 
     <name>jOOreo</name>
     <packaging>jar</packaging>
-    <version>0.2.15-hotfix2</version>
+    <version>0.2.15-hotfix3</version>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
