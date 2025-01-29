@@ -230,13 +230,18 @@ public class Jooreo {
                             fkTableField = recordFk.getFields().get(0);
                         } else {
                             java.lang.reflect.Field f = joinField.parentClassField;
-                            Class parentTableClass = CLASS_TABLE_MAP.entrySet().stream().filter(en -> en.getValue().getClass().equals(parentTable.getClass())).map(en -> en.getKey()).findFirst().orElse(null);
+                            Class parentTableClass = CLASS_TABLE_MAP.entrySet().stream().filter(en -> en.getValue().equals(parentTable)).map(en -> en.getKey()).findFirst().orElse(null);
                             if (parentTableClass == null) {
                                 throw new UnsupportedParameterException("filter", f.getName(), "null");
                             }
-                            ManyToOne annotation = f.getAnnotation(ManyToOne.class);
-                            if (annotation != null && annotation.field() != null && !annotation.field().isEmpty()) {
-                                fkTableField = parentTable.field(annotation.field());
+                            ManyToOne mto = f.getAnnotation(ManyToOne.class);
+                            if (mto != null && mto.field() != null && !mto.field().isEmpty()) {
+                                fkTableField = parentTable.field(mto.field());
+                            }
+                            OneToMany otm = f.getAnnotation(OneToMany.class);
+                            if (otm != null && otm.childField() != null && !otm.childField().isEmpty()) {
+                                primaryKey = parentTable.getPrimaryKey().getFields().get(0);
+                                fkTableField = childTable.field(otm.childField());
                             }
                             if (fkTableField == null) {
                                 throw new RuntimeException("Unable to build required filter for parent " + parentTable.getName() + " and field " + f.getName());
@@ -247,6 +252,7 @@ public class Jooreo {
                         fkTableField = recordFk.getFields().get(0);
                         primaryKey = parentTable.getPrimaryKey().getFields().get(0);
                     }
+
                     return dsl.selectOne().from(childTable).where(childTableConditions).and(fkTableField.eq(primaryKey));
                 }).collect(Collectors.toList());
     }
