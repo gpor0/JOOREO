@@ -2,6 +2,7 @@ package com.github.gpor0.jooreo.filters;
 
 
 import com.github.gpor0.jooreo.RequestContextProxy;
+import com.github.gpor0.jooreo.UUIDv7;
 import org.jooq.DSLContext;
 import org.jooq.Field;
 import org.jooq.TableRecord;
@@ -43,7 +44,7 @@ public class AuditCreateFilter extends RandomUUIDCreateFilter {
         }
         Field idField = getField(r, "id");
         if (idField != null) {
-            r.setValue(idField, UUID.randomUUID());
+            r.setValue(idField, UUIDv7.randomUUID());
         }
         Field delField = getField(r, "deleted");
         if (delField != null) {
